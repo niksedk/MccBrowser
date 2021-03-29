@@ -54,7 +54,15 @@ namespace MccBrowser
                 var cc = CcData[i];
                 node.Nodes.Add($"Valid={cc.Valid}");
                 node.Nodes.Add($"Type={cc.Type} (0x{cc.Type:X2}) {cc.GetCcType()}");
-                node.Nodes.Add($"Data1={cc.Data1} (0x{cc.Data1:X2})");
+                var data1Node = new TreeNode($"Data1={cc.Data1} (0x{cc.Data1:X2})");
+                node.Nodes.Add(data1Node);
+                if (cc.Type == 3)
+                {
+                    var sequenceNumber = cc.Data1 >> 6;
+                    var packetSize = cc.Data1 & 0b00111111;
+                    data1Node.Nodes.Add("Sequence number: " + sequenceNumber);
+                    data1Node.Nodes.Add("Packet size: " + packetSize);
+                }
                 node.Nodes.Add($"Data2={cc.Data2} (0x{cc.Data2:X2})");
                 root.Nodes.Add(node);
                 if (cc.Valid && cc.Type == 2)
