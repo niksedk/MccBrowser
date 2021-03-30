@@ -60,7 +60,7 @@ namespace MccBrowser
 
         public TreeNode GetNodes()
         {
-            var root = new TreeNode($"CC Service Info Section (0x{Id:X2})");
+            var root = new TreeNode($"CC Service Info Section (ID=0x{Id:X2}) ({GetLength()} bytes)");
             root.Nodes.Add($"Start={Start}");
             root.Nodes.Add($"Change={Change}");
             root.Nodes.Add($"Complete={Complete}");

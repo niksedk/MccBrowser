@@ -83,6 +83,7 @@ namespace MccBrowser
             this.treeView1.Name = "treeView1";
             this.treeView1.Size = new System.Drawing.Size(965, 366);
             this.treeView1.TabIndex = 3;
+            this.treeView1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.treeView1_KeyDown);
             // 
             // label1
             // 

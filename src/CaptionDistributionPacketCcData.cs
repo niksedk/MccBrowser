@@ -39,7 +39,7 @@ namespace MccBrowser
 
         public TreeNode GetNodes()
         {
-            var root = new TreeNode("CC Data");
+            var root = new TreeNode($"CC Data ({GetLength()} bytes)");
             root.Nodes.Add($"DataSection={DataSection} (0x{DataSection:X2})");
             root.Nodes.Add($"ProcessEmData={ProcessEmData}");
             root.Nodes.Add($"ProcessCcData={ProcessCcData}");

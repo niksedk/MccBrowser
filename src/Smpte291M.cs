@@ -122,5 +122,10 @@ namespace MccBrowser
         {
             return CaptionDistributionPacketCcData.GetText();
         }
+
+        public int GetLength()
+        {
+            return 15 + CaptionDistributionPacketCcData.GetLength() + CcServiceInfoSection.GetLength();
+        }
     }
 }

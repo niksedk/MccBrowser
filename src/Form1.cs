@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -119,6 +120,11 @@ namespace MccBrowser
 
             for (var index = 0; index < lines.Length; index++)
             {
+                if (index > 1000)
+                {
+                    break;
+                }
+
                 var line = lines[index];
                 var s = line.Trim();
                 var match = RegexTimeCodes.Match(s);
@@ -127,33 +133,39 @@ namespace MccBrowser
                     continue;
                 }
 
-                var node = new TreeNode($"{count:000} {s.Substring(0, match.Length).Trim()}");
+                TreeNode node = null;
                 var text = s.Substring(match.Index + match.Length).Trim();
                 var hex = GetHex(text);
                 try
                 {
                     var bytes = HexStringToByteArray(hex);
                     var smpte291M = new Smpte291M(bytes);
-                    var nodes = smpte291M.GetNodes(bytes);
-                    node = nodes;
-                    node.Text = $"{count:000} {s.Substring(0, match.Length).Trim()}";
+                    node = smpte291M.GetNodes(bytes);
+                    node.Text = $"{count:000} {s.Substring(0, match.Length).Trim()} ({smpte291M.GetLength()} bytes)";
+                    int validCcDataItems = 0;
                     foreach (TreeNode subNode in node.Nodes)
                     {
                         if (subNode.Text.StartsWith("CC Data"))
                         {
                             var ccData = (CcData[])subNode.Tag;
-                            var sb = new StringBuilder();
-                            if (ccData.Length > 3)
+                            foreach (var data in ccData)
                             {
-                                sb.Append($"Type={ccData[0].Type} {ccData[0].Data1:X2}{ccData[0].Data2:X2}, ");
-                                sb.Append($"Type={ccData[1].Type} {ccData[1].Data1:X2}{ccData[1].Data2:X2}, ");
-                                sb.Append($"Type={ccData[2].Type} {ccData[2].Data1:X2}{ccData[2].Data2:X2}");
+                                if (data.Valid)
+                                {
+                                    validCcDataItems++;
+                                }
                             }
 
-                            node.Text = $"{node.Text} {sb} {subNode.Text}";
+                            node.Text += $" - CC valid items: {validCcDataItems} - ";
                             break;
                         }
                     }
+
+                    node.Text += " " + smpte291M.GetText();
+
+                    var rawNode = new TreeNode("Raw hex");
+                    rawNode.Nodes.Add(string.Join(' ', bytes.Select(p => p.ToString("X2"))));
+                    node.Nodes.Add(rawNode);
                 }
                 catch
                 {
@@ -161,6 +173,20 @@ namespace MccBrowser
                 }
                 treeView1.Nodes.Add(node);
                 count++;
+            }
+        }
+
+        private void treeView1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (treeView1.SelectedNode == null)
+            {
+                return;
+            }
+
+            if (e.KeyData == (Keys.Control | Keys.C))
+            {
+                e.SuppressKeyPress = true;
+                Clipboard.SetText(treeView1.SelectedNode.Text);
             }
         }
     }
