@@ -167,10 +167,11 @@ namespace MccBrowser
                     rawNode.Nodes.Add(string.Join(' ', bytes.Select(p => p.ToString("X2"))));
                     node.Nodes.Add(rawNode);
                 }
-                catch
+                catch (Exception e)
                 {
-                    node.Nodes.Add("Unable to parse data");
+                    node = new TreeNode($"Unable to parse data: {e.Message}: {e.StackTrace}");
                 }
+
                 treeView1.Nodes.Add(node);
                 count++;
             }
